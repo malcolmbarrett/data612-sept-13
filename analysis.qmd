@@ -1,0 +1,54 @@
+---
+title: "touringplans"
+format: html
+---
+
+## Touring Plans
+
+```{r}
+#| label: setup
+# to install touringplans, run this in your console:
+# remotes::install_github("lucymcgowan/touringplans")
+library(touringplans)
+library(tidyverse)
+```
+
+
+```{r}
+touringplans_2018 <- tibble(touringplans_2018)
+touringplans_2018 |> 
+  summarize(
+    wait_minutes_actual_avg_complete = sum(!is.na(wait_minutes_actual_avg)),
+    wait_minutes_posted_avg_missing = sum(is.na(wait_minutes_posted_avg))
+  )
+
+touringplans_2018_complete <- touringplans_2018 |> 
+  filter(!is.na(wait_minutes_actual_avg) & !is.na(wait_minutes_posted_avg))
+  # another way to do this:
+  # drop_na(wait_minutes_actual_avg, wait_minutes_posted_avg)
+
+touringplans_2018_complete |> 
+  count(attraction_name)
+
+touringplans_2018_complete |> 
+  group_by(attraction_name) |> 
+  summarise(
+    diff = mean(wait_minutes_actual_avg - wait_minutes_posted_avg),
+    n = n()
+  ) |> 
+  arrange(desc(diff))
+
+touringplans_2018_complete |> 
+    group_by(park_ticket_season) |> 
+    summarise(
+        diff = mean(wait_minutes_actual_avg - wait_minutes_posted_avg),
+        n = n(),
+        weather = mean(park_temperature_high, na.rm = TRUE)
+    ) |>
+  arrange(diff) 
+
+# which variables about the park are there?
+touringplans_2018_complete |> 
+  select(starts_with("park"))
+```
+
